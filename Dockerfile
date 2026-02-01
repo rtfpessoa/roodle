@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine as build-go
+FROM golang:1-alpine as build-go
 
 ARG SERVICE_VERSION
 ENV DD_VERSION=$SERVICE_VERSION
@@ -16,7 +16,7 @@ RUN mkdir -p ./bin && \
 
 RUN chmod +x ./bin/server
 
-FROM node:20-alpine as build-js
+FROM node:lts-alpine as build-js
 
 ARG SERVICE_VERSION
 ENV DD_VERSION=$SERVICE_VERSION
@@ -25,6 +25,7 @@ WORKDIR /app
 
 COPY package.json .
 COPY yarn.lock .
+RUN echo 'network-timeout 600000' > .yarnrc
 RUN yarn
 
 COPY .env .
