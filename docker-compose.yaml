@@ -1,39 +1,64 @@
 services:
-  db:
-    image: cockroachdb/cockroach:latest
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
     ports:
-      - "26257:26257"
-    command: start-single-node --insecure
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # Optional: for HTTP/3 support
     volumes:
-      - db-data:/cockroach/cockroach-data
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "./cockroach",
-          "sql",
-          "--host=db:26257",
-          "--insecure",
-          "--user",
-          "root",
-        ]
-      interval: 1s
-      timeout: 1s
-      retries: 20
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+
+  # db:
+  #   image: cockroachdb/cockroach:latest
+  #   ports:
+  #     - "26257:26257"
+  #   command: start-single-node --insecure
+  #   volumes:
+  #     - db-data:/cockroach/cockroach-data
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "./cockroach",
+  #         "sql",
+  #         "--host=db:26257",
+  #         "--insecure",
+  #         "--user",
+  #         "root",
+  #       ]
+  #     interval: 1s
+  #     timeout: 1s
+  #     retries: 20
+  #   networks:
+  #     - web
+
   api:
     build:
       context: ./
-    image: rtfpessoa/roodle
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - 8080:8080
+    image: ghcr.io/rtfpessoa/roodle
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    # links:
+    #   - db
     env_file:
       - .server.env
-    links:
-      - db
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
 
 volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
   db-data:
     driver: local

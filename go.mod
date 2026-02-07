@@ -1,6 +1,6 @@
 module github.com/rtfpessoa/roodle
 
-go 1.21
+go 1.25
 
 require (
 	github.com/deepmap/oapi-codegen v1.16.2

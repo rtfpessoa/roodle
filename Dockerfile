@@ -1,4 +1,4 @@
-FROM golang:1-alpine as build-go
+FROM golang:1-alpine AS build-go
 
 ARG SERVICE_VERSION
 ENV DD_VERSION=$SERVICE_VERSION
@@ -16,7 +16,7 @@ RUN mkdir -p ./bin && \
 
 RUN chmod +x ./bin/server
 
-FROM node:lts-alpine as build-js
+FROM node:lts-alpine AS build-js
 
 ARG SERVICE_VERSION
 ENV DD_VERSION=$SERVICE_VERSION
@@ -39,7 +39,7 @@ RUN mkdir -p src && \
 COPY src src
 RUN yarn build
 
-FROM alpine:3 as libs
+FROM alpine:3 AS libs
 
 ARG SERVICE_VERSION
 
